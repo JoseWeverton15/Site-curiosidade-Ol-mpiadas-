@@ -4,14 +4,16 @@ body{
     justify-content: flex;
     align-items: center;
     height: 100vh;
-    background-color: hsl(0, 9%, 18%);
+    background-color: hsl(0, 5%, 16%);
+    background-image: url("https://cdn.braziliantimes.com/website/base/b42/03b/21d/olympic-games-sports-background-with-copy-space-text.jpg");
+    background-size: cover;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
     flex-direction: column;
-    justify-content: center; 
     margin-top: 30px;
 }
 
-#botao1, #botao2{
-    display: grid;
+#botao1{
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
     padding: 25px;

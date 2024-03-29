@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "fast-csv": "^5.0.1"
+    "csv-parser": "^3.0.0",
+    "fs": "^0.0.1-security"
   }
 }

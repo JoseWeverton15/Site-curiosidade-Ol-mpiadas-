@@ -1,39 +1,56 @@
-const fs = require('fs').promises; // Utilizando a versão promissificada do módulo fs
-const csv = require('fast-csv'); // Importando o pacote fast-csv
+const fs = require('fs');
+const csv = require('csv-parser');
 
-const lerArquivoJson = async (caminhoArquivo) => {
-  try {
-    const data = await fs.readFile(caminhoArquivo, 'utf8');
-    
-    return new Promise((resolve, reject) => {
-      const objetoJson = [];
-      csv.parseString(data, { headers: true })
-        .on('error', error => reject(error))
-        .on('data', row => objetoJson.push(row))
-        .on('end', () => resolve(objetoJson));
+const filtrar = (dados, filtro) => {
+    return dados.filter((x) => x.Medal === filtro);
+};
+
+const somatorio = (lista) => lista.length;
+
+const lerCSV = (caminhoArquivo, callback) => {
+    const dados = [];
+    fs.createReadStream(caminhoArquivo)
+        .pipe(csv())
+        .on('data', (linha) => {
+            dados.push(linha);
+        })
+        .on('end', () => {
+            callback(null, dados);
+        })
+        .on('error', (error) => {
+            callback(error, null);
+        });
+};
+
+const a = () => {
+    lerCSV('atletas.csv', (error, dados) => {
+        if (error) {
+            console.error('Erro ao ler o arquivo CSV:', error);
+        } else {
+            const dadosFiltrados = filtrar(dados, 'Gold');
+            soma = somatorio(dadosFiltrados);
+            document.getElementById("resultado").innerText = "Total de medalhas de ouro: " + soma; // Atualiza o conteúdo do elemento com o resultado
+        }
     });
-  } catch (err) {
-    throw err; // Pode tratar ou propagar o erro conforme necessário
-  }
 };
 
-// Exemplo de uso com async/await
-const caminhoArquivo = 'continentes.csv';
+a(); // Chama a função a ao carregar a página
+document.getElementById('fileInput').addEventListener('change', handleFileSelect, false);
 
-(async () => {
-  try {
-    const resultado = await lerArquivoJson(caminhoArquivo);
-    console.log('Dados lidos:', resultado);
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
 
-    // Agora você pode manipular 'resultado' em outras funções ou parte do código
-    outraFuncaoQueManipulaJson(resultado);
-  } catch (err) {
-    console.error('Erro ao ler o arquivo:', err);
-  }
-})();
+    reader.onload = function(event) {
+        const csvData = event.target.result;
+        processData(csvData);
+    };
 
-// Função que manipula o objeto JSON
-const outraFuncaoQueManipulaJson = (jsonObject) => {
-  // Faça o que quiser com o objeto JSON aqui
-  console.log('Manipulando o objeto JSON:', jsonObject);
-};
+    reader.readAsText(file);
+}
+
+function processData(csvData) {
+    const lines = csvData.split('\n');
+    const goldMedals = lines.filter(line => line.includes('Gold')).length;
+    document.getElementById('resultado').innerText = "Total de medalhas de ouro: " + goldMedals;
+}

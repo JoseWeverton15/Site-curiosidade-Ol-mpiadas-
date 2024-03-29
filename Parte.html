@@ -3,11 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exibição de Resultado</title>
+    <title>Total de Medalhas de Ouro</title>
 </head>
 <body>
     <h1>Total de Medalhas de Ouro</h1>
-    <p id="resultado"></p> <!-- Aqui será exibido o resultado -->
-    <script src="Parte.js"></script>
+    <p>O total de medalhas de ouro é: <span id="totalOuro"></span></p>
+
+    <script>
+        async function buscarTotalMedalhasOuro() {
+            try {
+                const response = await fetch('atletas.csv');
+                const data = await response.text();
+                const totalMedalhasOuro = filtrarMedalhasOuro(data);
+                atualizarTotalMedalhasOuro(totalMedalhasOuro);
+            } catch (err) {
+                console.error('Erro ao buscar o total de medalhas de ouro:', err);
+            }
+        }
+
+        function atualizarTotalMedalhasOuro(totalMedalhasOuro) {
+            document.getElementById('totalOuro').textContent = totalMedalhasOuro;
+        }
+
+        function filtrarMedalhasOuro(data) {
+            const linhas = data.split('\n').slice(1); // Ignorar o cabeçalho
+            const totalMedalhasOuro = linhas
+                .map(linha => linha.split(',')[linha.split(',').length - 1].replace(/"/g, '').trim())
+                .filter(medalha => medalha === 'Silver')
+                .length;
+            return totalMedalhasOuro;
+        }
+
+        window.onload = buscarTotalMedalhasOuro;
+    </script>
 </body>
 </html>

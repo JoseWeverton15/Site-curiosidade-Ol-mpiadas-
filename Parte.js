@@ -1,40 +1,47 @@
 const fs = require('fs');
-const csv = require('csv-parser');
 
-const filtrar = (dados, filtro) => {
-    return dados.filter((x) => x.Medal === filtro);
-};
+const nomeArquivo = 'atletas.csv';
 
-const somatorio = (lista) => lista.length;
-
-const lerCSV = (caminhoArquivo, callback) => {
-    const dados = [];
-    fs.createReadStream(caminhoArquivo)
-        .pipe(csv())
-        .on('data', (linha) => {
-            dados.push(linha);
-        })
-        .on('end', () => {
-            callback(null, dados);
-        })
-        .on('error', (error) => {
-            callback(error, null);
+function lerArquivoCSV(nomeArquivo) {
+    return new Promise((resolve, reject) => {
+        fs.readFile(nomeArquivo, 'utf8', (err, data) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(data);
         });
-};
-
-// Função principal para processar o CSV e exibir o resultado na página HTML
-const exibirTotalMedalhasOuro = () => {
-    lerCSV('atletas.csv', (error, dados) => {
-        if (error) {
-            console.error('Erro ao ler o arquivo CSV:', error);
-        } else {
-            const dadosFiltrados = filtrar(dados, 'Gold');
-            const totalMedalhasOuro = somatorio(dadosFiltrados);
-            console.log("Total de medalhas de ouro:", totalMedalhasOuro); // Verifica se o total de medalhas está correto
-            document.getElementById('resultado').textContent = "Total de medalhas de ouro: " + totalMedalhasOuro;
-        }
     });
-};
+}
 
-// Chamando a função principal para iniciar o processo
-exibirTotalMedalhasOuro();
+function filtrarMedalhasOuro(data) {
+    const linhas = data.split('\n').slice(1); // Ignorar o cabeçalho
+    const totalMedalhasOuro = linhas
+        .map(linha => linha.split(',')[linha.split(',').length - 1].replace(/"/g, '').trim())
+        .filter(Medal => Medal === 'Silver')
+        .length;
+    return totalMedalhasOuro;
+}
+
+function escreverResultadoCSV(totalMedalhasOuro) {
+    const linhaCSV = `Total de Medalhas de Ouro\n${totalMedalhasOuro}`;
+    return new Promise((resolve, reject) => {
+        fs.writeFile('total_medalhas_ouro.csv', linhaCSV, 'utf8', err => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve();
+        });
+    });
+}
+
+lerArquivoCSV(nomeArquivo)
+    .then(filtrarMedalhasOuro)
+    .then(escreverResultadoCSV)
+    .then(() => {
+        console.log('Resultado salvo em total_medalhas_ouro.csv');
+    })
+    .catch(err => {
+        console.error('Erro:', err);
+    });

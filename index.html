@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Olimpíadas</title>
+    <link rel="shortcut icon" href="https://th.bing.com/th/id/OIG2.fmJMUb3PcEvWKm1KbLCT?pid=ImgGnOlimpíadas.ico" type="image/x-icon">
+</head>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    
+    <div class="container">
+        <img src="https://th.bing.com/th/id/OIG3.lZm5Bd9Ljd5M8f4A67iW?pid=ImgGn" alt="Descrição da Imagem">
+        <div class="texto-sobre-imagem" id="totalOuro"></div>
+    </div>
+    <div class="container">
+        <img src="https://th.bing.com/th/id/OIG4.od9Lz0Oxsiqu8Ccewt90?pid=ImgGn" alt="Descrição da Imagem">
+        <div class="texto-sobre-imagem" id="totalMulheres"></div>
+    </div>
+    <div class="container">
+        <img src="https://th.bing.com/th/id/OIG4.Pel2hzJiSB8SXirg3YXa?pid=ImgGn" alt="Descrição da Imagem">
+        <div class="texto-sobre-imagem" id="MaisAlta"></div>
+    </div>
+    <div class="container">
+        <img src="https://th.bing.com/th/id/OIG2.AIkG7h3qeGpLypvIgofh?pid=ImgGn" alt="Descrição da Imagem">
+        <div class="texto-sobre-imagem" id="BrasilMedalhas"></div>
+    </div>
+    <div class="container">
+        <img src="https://th.bing.com/th/id/OIG3.APmgdC83v5n_hlKEddSR?pid=ImgGn" alt="Descrição da Imagem">
+        <div class="texto-sobre-imagem" id="MaisAtletas"></div>
+    </div>
+    <div class="github-link">
+        <a href="https://github.com/JoseWeverton15" target="_blank">Meu GitHub</a>
+    </div>
+
+    <script>
+        async function buscarTotalMedalhasOuro() {
+            try {
+                const response = await fetch('atletas.csv');
+                const data = await response.text();
+                const totalMedalhasOuro = filtrarMedalhasOuro(data);
+                atualizarTotalMedalhasOuro(totalMedalhasOuro);
+            } catch (err) {
+                console.error('Erro ao buscar o total de medalhas de ouro:', err);
+            }
+        }
+
+        async function buscarTotalMulheres() {
+            try {
+                const response = await fetch('atletas.csv');
+                const data = await response.text();
+                const totalMulheres = filtrarMulheres(data);
+                atualizarTotalMulheres(totalMulheres);
+            } catch (err) {
+                console.error('Erro ao buscar o total de mulheres:', err);
+            }
+        }
+
+        async function buscaPessoasMaisAlta() {
+            try {
+                const response = await fetch('atletas.csv');
+                const data = await response.text();
+                const MaisAlta = filtrarAltura(data);
+                atualizarAltura(MaisAlta);
+            } catch (err){
+                console.error('Erro ao buscar pessoa mais alta:', err)
+            }
+        }
+
+        async function buscaMedalhasBrasil() {
+            try {
+                const response = await fetch('atletas.csv');
+                const data = await response.text();
+                const MedalhasBrasil = filtrarMedalhasBrasil(data);
+                atualizarBrasil(MedalhasBrasil);
+            } catch (err){
+                console.error('Erro ao buscar medalhas do Brasil:', err)
+            }
+        }
+        async function buscaAnoMaisAtletas() {
+            try {
+                const response = await fetch('atletas.csv');
+                const data = await response.text();
+                const atletasPorAno = contarAtletasPorAno(data); // Corrigido para chamar contarAtletasPorAno()
+                const MaisAtletas = filtrarMaisAtletas(atletasPorAno);
+                atualizarMaisAtletas(MaisAtletas);
+            } catch (err){
+                console.error('Erro ao buscar ano com mais atletas:', err);
+            }
+        }
+
+
+        function atualizarTotalMedalhasOuro(totalMedalhasOuro) {
+            document.getElementById('totalOuro').textContent = `O total de medalhas de ouro que já foram distribuídas ao longo de todas Olímpiadas é: ${totalMedalhasOuro}               `;
+        }
+        function atualizarTotalMulheres(totalMulheres) {
+            document.getElementById('totalMulheres').textContent = `O total de mulheres que ja estiveram nos Jogos Olímpicos é: ${totalMulheres}`;
+        }
+        function atualizarAltura(pessoaMaisAlta){
+            document.getElementById('MaisAlta').textContent = `A pessoa mais alta da história das Olimpíadas foi o jogador de Basquete Chinês: ${pessoaMaisAlta.nome}, com altura de ${pessoaMaisAlta.altura} cm.`;
+        }
+        function atualizarBrasil(totalMedalhasBrasil) {
+            document.getElementById('BrasilMedalhas').textContent = `O Brasil ganhou ao longo de todas Olímpiadas ${totalMedalhasBrasil} medalhas`;
+        }
+        function atualizarMaisAtletas(AnoMaisAtletas) {
+            document.getElementById('MaisAtletas').textContent = `O ano de ${AnoMaisAtletas} foi o que teve mais atletas (Olimpíadas da Grécia)`;
+        }
+
+        function filtrarMedalhasOuro(data) {
+            const linhas = data.split('\n').slice(1); // Ignorar o cabeçalho
+            const totalMedalhasOuro = linhas
+                .map(linha => linha.split(',')[linha.split(',').length - 1].replace(/"/g, '').trim())
+                .filter(medalha => medalha === 'Gold')
+                .length;
+            return totalMedalhasOuro;
+        }
+
+        function filtrarMulheres(data) {
+            const linhas = data.split('\n').slice(1); // Ignorar o cabeçalho
+
+            const mulheresUnicas = new Set(); // Usando um Set para armazenar IDs únicos de mulheres
+
+            linhas.forEach(linha => {
+                const [id, , genero] = linha.split(',').map(coluna => coluna.replace(/"/g, '').trim());
+                if (genero === 'F') {
+                    mulheresUnicas.add(id); // Adicionar apenas IDs de mulheres ao conjunto
+                }
+            });
+
+            const totalMulheres = mulheresUnicas.size; // Tamanho do Set dá o número de IDs únicos
+
+            console.log(totalMulheres);
+            return totalMulheres;
+        }
+
+        function filtrarAltura(data){
+            // Split data into lines
+            const linhas = data.split('\n').slice(1); // Ignorar o cabeçalho
+
+            // Mapear as alturas para um array
+            const alturas = linhas.map(linha => {
+                const [, nome, , , altura] = linha.split(',').map(coluna => coluna.replace(/"/g, '').trim());
+                return { nome, altura: parseInt(altura) || 0 }; // Converter altura para número e tratar NaN como 0
+            });
+
+            // Encontrar pessoa mais alta
+            const pessoaMaisAlta = alturas.reduce((maisAlta, atual) => maisAlta.altura > atual.altura ? maisAlta : atual, { altura: 0 });
+            return pessoaMaisAlta;
+        }
+
+        function filtrarMedalhasBrasil(data) {
+            const linhas = data.split('\n').slice(1); // Ignorar o cabeçalho
+            const totalMedalhasBrasil = linhas
+                .map(linha => {
+                    const colunas = linha.split(',');
+                    if (colunas.length >= 15) { // Verificar se há colunas suficientes
+                        const team = colunas[6].replace(/"/g, '').trim(); // Obter o código do país (NOC)
+                        const medalha = colunas[14].replace(/"/g, '').trim(); // Obter o tipo de medalha
+                        return { team, medalha };
+                    }
+                    return null; // Retornar null para linhas com colunas insuficientes
+                })
+                .filter(data => data && data.team === 'Brazil' && (data.medalha === 'Gold' || data.medalha === 'Silver' || data.medalha === 'Bronze')) // Filtrar apenas medalhas para o Brasil
+                .length;
+            
+            return totalMedalhasBrasil;
+        }
+        const contarAtletasPorAno = (data) => {
+            const linhas = data.split('\n').slice(1); // Ignorar o cabeçalho
+            return linhas.reduce((acc, linha) => {
+                const [, , , , , , , , , , season, , , ,] = linha.split(',').map(coluna => coluna.replace(/"/g, '').trim());
+                return season === 'Summer' ? { ...acc, [linha.split(',')[9]]: (acc[linha.split(',')[9]] || 0) + 1 } : acc;
+            }, {});
+        };
+        const filtrarMaisAtletas = (atletasPorAno) => {
+            const AnoMaisAtletas = Object.keys(atletasPorAno).reduce((maxAno, ano) => atletasPorAno[ano] > atletasPorAno[maxAno] ? ano : maxAno, Object.keys(atletasPorAno)[0]);
+            return AnoMaisAtletas
+        };
+
+        window.onload = () => {
+            buscarTotalMedalhasOuro();
+            buscarTotalMulheres();
+            buscaPessoasMaisAlta();
+            buscaMedalhasBrasil();
+            buscaAnoMaisAtletas(); // Adicionando chamada para buscar as medalhas do Brasil
+        };
+    </script>
+</body>
+</html>

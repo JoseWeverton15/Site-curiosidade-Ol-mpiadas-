@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantidade de Medalhas por País</title>
+<link rel="stylesheet" href="usuario.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="title-box">
+        <h2>Quantidade de Medalhas por país (atletas)</h2>
+    </div>
+
+    <select id="selecionarPais" onchange="mostrarMedalhas()" class="country-select">
+        <option value="Germany">Alemanha</option>
+        <option value="China">China</option>
+        <option value="Denmark">Dinamarca</option>
+        <option value="United States">Estados Unidos</option>
+        <option value="France">França</option>
+        
+    </select>
+
+    <p id="quantidadeMedalhas" class="medal-count"></p>
+</div>
+
+<button onclick="window.location.href='index.html'" class="go-back-button">Voltar</button>
+
+<div class="github-link">
+    <a href="https://github.com/JoseWeverton15" target="_blank">Meu GitHub</a>
+</div>
+
+<div class="background-image"></div>
+
+<footer>
+    <div class="footer-content">
+        <img class="footer-image" src="logo.jpg" alt="Logo">
+    </div>
+</footer>
+
+<script>
+    /* 
+função filtrarMedalhasPorPais - todos os atletas que já ganharam medalhas
+    data.split é utilizado para transformar os dados em um array de linhas. slice(1) remove a primeira linha, pois somente é o nome dado a cada coluna do arquivo
+    .map cria um nova lista só que cada linha acaba sendo separada por vírgula .split(',')
+        colunas.length >= 15 verifica se possu 15 colunas, evitando assim erros de indexação
+        colunas[6] - acessar o nome do país e substituir " por '' e o uso do .trim
+        e com isso retorna o pais e a medalha
+        caso não tiver coluna suficiente retorn null
+        .filter
+            filtra para retornar somente os atletas do Brasil com qualquer tipo de medalha ganha
+        
+    .length tamanho desse array
+    retornando o total de medalahs ganhas pelos atletas do Brasil
+*/
+    const filtrarMedalhasPorPais = (data, paisSelecionado) => {
+        const linhas = data.split('\n').slice(1);
+        const totalMedalhas = linhas
+            .map(linha => {
+                const colunas = linha.split(',');
+                if (colunas.length >= 15) { 
+                    const team = colunas[6].replace(/"/g, '').trim();  
+                    const medalha = colunas[14].replace(/"/g, '').trim(); 
+                    return { team, medalha };
+                }
+                return null; 
+            })
+            .filter(data => data && data.team === paisSelecionado && (data.medalha === 'Gold' || data.medalha === 'Silver' || data.medalha === 'Bronze')) 
+            .length;
+        
+        return totalMedalhas;
+    }
+
+    const mostrarMedalhas = async () => {
+    const selecionado = document.getElementById("selecionarPais");
+    const paisSelecionado = selecionado.options[selecionado.selectedIndex].value;
+
+    
+    const response = await fetch('atletas.csv');
+    const dataCSV = await response.text();
+
+    const totalMedalhas = filtrarMedalhasPorPais(dataCSV, paisSelecionado);
+    
+    const medalCount = document.getElementById("quantidadeMedalhas");
+    medalCount.innerText = `${totalMedalhas}`;
+    medalCount.classList.add("active");
+}
+
+</script>
+
+</body>
+</html>

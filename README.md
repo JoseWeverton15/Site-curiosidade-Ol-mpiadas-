@@ -2,3 +2,6 @@ Este site traz algumas curiosidades sobre as Olimpíadas, entre eles a maior qua
 
 Componente do grupo:
 José Weverton de Oliveira Vilar
+
+link site:
+olimpiadas-curiosidades-pagina.netlify.app

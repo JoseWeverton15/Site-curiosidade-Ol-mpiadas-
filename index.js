@@ -1,22 +1,51 @@
- /* 
+const fs = require('fs');
+
+// Lendo o conteúdo do arquivo CSV
+const data = fs.readFileSync('atletas.csv', 'utf8');
+
+/*Aqui eu leio o arquivo com o uso do new Promise((resolve, reject)) com o objetivo de que seja retornado um objeto resolvido ou rejeitado:
+fs.readFile(nomeArquivo, 'utf8', (err, data)
+    fs. para ler o arquivo (nomeArquivo = 'atletas.csv')
+    readFile é uma função assíncrona, recebe três valores
+        o nome do arquivo
+        'utf8' codificação em texto
+        (err, data) retorno da função, err se der erro e data que é o conteudo lido do arquivo
+    if (err) {reject(err)return;}
+        se der erro é chamado a função reject para que o código não seja executado
+    resolve(data)
+    se não tiver erro, o dados do arquivo são passados como argumento
+Para que eu possa utilizar .then e .catch
+*/ 
+
+const lerArquivoCSV = (caminho) => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(caminho, 'utf8', (err, data) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
+};
+
+/* 
         As const nome = async ()... abaixo têm a mesma estrutura 
             Utilizam o async para realizar operações assíncrona
             try{...} onde será realizada a codificação
-            fetch(...) é utilizada para fazer uma requisição HTTP no arquivo atletas.csv
-            await esperar pela execução da operação assíncrona
-            response. onde ficará a resposta da requisição
-            .text obter o conteúdo do arquivo CSV como texto
+            await esperar pela execução da operação assíncrona(leitura do arquivo)
+            depois é definida uma função que irá realizar a filtragem
+            (data) receberá os arquivos lidos para filtragem
+            catch (err) para caso aconteça um erro a operação é impedida de ser realizada
 
-            Todas as funções async tem uma terceira constante que chama uma função para fazer a filtram e outra que será utilizada para atualizar a interface da página
 
         */
         
             const buscarTotalMedalhasOuro = async () => {
                 try {
-                    const response = await fetch('atletas.csv')
-                    const data = await response.text()
+                    const data = await lerArquivoCSV('./atletas.csv')
                     const totalMedalhasOuro = filtrarMedalhasOuro(data)
-                    atualizarTotalMedalhasOuro(totalMedalhasOuro)
+                    console.log('Total de medalhas de ouro:', totalMedalhasOuro);
                 } catch (err) {
                     console.error('Erro ao buscar o total de medalhas de ouro:', err)
                 }
@@ -24,10 +53,9 @@
     
             const buscarTotalMulheres = async () =>{
                 try {
-                    const response = await fetch('atletas.csv')
-                    const data = await response.text()
+                    const data = await lerArquivoCSV('./atletas.csv')
                     const totalMulheres = filtrarMulheres(data)
-                    atualizarTotalMulheres(totalMulheres)
+                    console.log('Total de mulheres:', totalMulheres);
                 } catch (err) {
                     console.error('Erro ao buscar o total de mulheres:', err)
                 }
@@ -35,10 +63,9 @@
     
             const buscaPessoasMaisAlta = async () =>{
                 try {
-                    const response = await fetch('atletas.csv')
-                    const data = await response.text()
+                    const data = await lerArquivoCSV('./atletas.csv')
                     const MaisAlta = filtrarAltura(data)
-                    atualizarAltura(MaisAlta)
+                    console.log('Pessoa mais alta:', MaisAlta);
                 } catch (err){
                     console.error('Erro ao buscar pessoa mais alta:', err)
                 }
@@ -46,51 +73,23 @@
     
            const buscaMedalhasBrasil = async () =>{
                 try {
-                    const response = await fetch('atletas.csv');
-                    const data = await response.text();
+                    const data = await lerArquivoCSV('./atletas.csv');
                     const MedalhasBrasil = filtrarMedalhasBrasil(data);
-                    atualizarBrasil(MedalhasBrasil);
+                    console.log('Total de medalhas dos atletas brasileiros:', MedalhasBrasil);
                 } catch (err){
                     console.error('Erro ao buscar medalhas do Brasil:', err)
                 }
             }
             const buscaAnoMaisAtletas = async () => {
                 try {
-                    const response = await fetch('atletas.csv');
-                    const data = await response.text();
+                    const data = await lerArquivoCSV('./atletas.csv')
                     const atletasPorAno = contarAtletasPorAno(data); 
                     const MaisAtletas = filtrarMaisAtletas(atletasPorAno);
-                    atualizarMaisAtletas(MaisAtletas)
+                    console.log('Ano com mais atletas', MaisAtletas);
                 } catch (err){
                     console.error('Erro ao buscar ano com mais atletas:', err)
                 }
             }
-            
-    
-            /*
-            As const atualizar... tem a mesma estrutura
-                A função recebe um parâmetro
-                document.getElementById(ID') acessar o elemento HTML com a ID especificada
-                .textContent é utilizado para exibir uma string na página
-                {...} aqui vai o valor resultante da operação
-            */
-    
-            const atualizarTotalMedalhasOuro = (totalMedalhasOuro) => {
-                document.getElementById('totalOuro').textContent = `O total de medalhas de ouro que já foram distribuídas ao longo de todas Olímpiadas é: ${totalMedalhasOuro}               `;
-            }
-            const atualizarTotalMulheres = (totalMulheres) =>{
-                document.getElementById('totalMulheres').textContent = `O total de mulheres que ja estiveram nos Jogos Olímpicos é: ${totalMulheres}`;
-            }
-            const atualizarAltura = (pessoaMaisAlta) =>{
-                document.getElementById('MaisAlta').textContent = `A pessoa mais alta da história das Olimpíadas foi o jogador de Basquete Chinês: ${pessoaMaisAlta.nome}, com altura de ${pessoaMaisAlta.altura} cm.`;
-            }
-            const atualizarBrasil = (totalMedalhasBrasil) => {
-                document.getElementById('BrasilMedalhas').textContent = `Os atletas do Brasil já ganharam ao longo de todas Olimpíadas ${totalMedalhasBrasil} medalhas`;
-            }
-            const atualizarMaisAtletas = (AnoMaisAtletas) => {
-                document.getElementById('MaisAtletas').textContent = `O ano de ${AnoMaisAtletas} foi o que teve mais atletas (Olimpíadas de Sydney)`;
-            }
-            document.getElementById('Usuario').textContent = `Aqui você decide...`
     
     /*
     const filtrarMedalhasOuro
@@ -135,8 +134,7 @@
                     }, new Set());
     
                 const totalMulheres = mulheresUnicas.size 
-    
-                console.log(totalMulheres)
+
                 return totalMulheres
             }
     
@@ -227,14 +225,11 @@
                 return AnoMaisAtletas
                     }
 
- /*
-    A funções aqui atribuídas serão executas quando a página carregar
-*/
-        window.onload = () => {
-            buscarTotalMedalhasOuro()
-            buscarTotalMulheres()
-            buscaPessoasMaisAlta()
-            buscaMedalhasBrasil()
-            buscaAnoMaisAtletas()
-            
-        };
+
+// Chamar as funções para exibir os resultados
+buscarTotalMedalhasOuro();
+buscarTotalMulheres();
+buscaPessoasMaisAlta();
+buscaMedalhasBrasil();
+buscaAnoMaisAtletas();
+

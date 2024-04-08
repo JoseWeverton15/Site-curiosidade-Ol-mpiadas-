@@ -4,4 +4,4 @@ Componente do grupo:
 José Weverton de Oliveira Vilar
 
 link site:
-olimpiadas-curiosidades-pagina.netlify.app
+curiosidades-das-olimpiadas-site.netlify.app
